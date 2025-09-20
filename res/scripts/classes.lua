@@ -144,7 +144,11 @@ network.udp_connect = function (address, port, datagramHandler, openCallback)
     socket.id = network.__connect_udp(address, port)
 
     _udp_client_datagram_callbacks[socket.id] = datagramHandler
-    _udp_client_open_callbacks[socket.id] = openCallback
+    if openCallback then
+        _udp_client_open_callbacks[socket.id] = function()
+            openCallback(socket)
+        end
+    end
 
     return socket
 end
