@@ -805,7 +805,11 @@ public:
 
     void sendTo(const std::string& addr, int port, const char* buffer, size_t length) override {
         logger.info() << "sendto " << addr << ":" << port;
-        sockaddr_in client = resolve_address_dgram(addr, port);
+        sockaddr_in client{};
+        client.sin_family = AF_INET;
+        inet_pton(AF_INET, addr.c_str(), &client.sin_addr);
+        client.sin_port = htons(port);
+
         if (sendto(descriptor, buffer, length, 0,
                reinterpret_cast<sockaddr*>(&client), sizeof(client)) < 0) {
             logger.error() << handle_socket_error("sendto").what();
