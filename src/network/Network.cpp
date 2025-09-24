@@ -606,8 +606,8 @@ public:
         }
         sockaddr_in address;
         address.sin_family = AF_INET;
-        address.sin_port = htons(port);
         address.sin_addr.s_addr = INADDR_ANY;
+        address.sin_port = htons(port);
         if (bind(descriptor, (sockaddr*)&address, sizeof(address)) < 0) {
             closesocket(descriptor);
             throw std::runtime_error("could not bind port "+std::to_string(port));
@@ -804,10 +804,7 @@ public:
     }
 
     void sendTo(const std::string& addr, int port, const char* buffer, size_t length) override {
-        sockaddr_in client{};
-        client.sin_family = AF_INET;
-        inet_pton(AF_INET, addr.c_str(), &client.sin_addr);
-        client.sin_port = htons(port);
+        sockaddr_in client = resolve_address_dgram(addr, port);
         sendto(descriptor, buffer, length, 0,
                reinterpret_cast<sockaddr*>(&client), sizeof(client));
     }
