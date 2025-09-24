@@ -711,10 +711,8 @@ public:
     }
 
     int send(const char* buffer, size_t length) override {
-        handle_socket_error("test");
         logger.info() << "SocketUdpConnection send " << length << " " << getAddress();
-        int len = sendto(descriptor, buffer, length, 0,
-                         (sockaddr*)&addr, sizeof(addr));
+        int len = ::send(descriptor, buffer, length, 0);
         if (len < 0) {
             auto err = handle_socket_error("udp sendto failed");
             closesocket(descriptor);
