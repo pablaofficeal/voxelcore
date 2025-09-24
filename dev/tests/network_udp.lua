@@ -1,4 +1,4 @@
-for i = 1, 3 do
+for i = 1, 15 do
     print(string.format("iteration %s", i))
     local complete = false
 
@@ -14,7 +14,7 @@ for i = 1, 3 do
         print("udp socket opened")
         start_coroutine(function()
             print("udp data-sender started")
-            for k = 1, 5 do
+            for k = 1, 15 do
                 local payload = ""
                 for j = 1, 16 do
                     payload = payload .. math.random(0, 9)
