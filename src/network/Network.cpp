@@ -715,9 +715,10 @@ public:
         int len = sendto(descriptor, buffer, length, 0,
                          (sockaddr*)&addr, sizeof(addr));
         if (len < 0) {
-            logger.info() << "SocketUdpConnection closed";
+            auto err = handle_socket_error("udp sendto failed");
             closesocket(descriptor);
             state = ConnectionState::CLOSED;
+            logger.error() << "SocketUdpConnection sendto: " << err.what();
         } else totalUpload += len;
 
         return len;
