@@ -636,7 +636,6 @@ static sockaddr_in resolve_address_dgram(const std::string& address, int port) {
 
     std::memcpy(&serverAddr, addrinfo->ai_addr, sizeof(sockaddr_in));
     serverAddr.sin_port = htons(port);
-    serverAddr.sin_addr.s_addr = INADDR_ANY;
     freeaddrinfo(addrinfo);
     return serverAddr;
 }
