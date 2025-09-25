@@ -694,7 +694,7 @@ public:
 
         thread = std::make_unique<std::thread>([this]() {
             util::Buffer<char> buffer(16'384);
-            while (open) {
+            while (true) {
                 logger.info() << "SocketUdpConnection listening";
                 int size = recv(descriptor, buffer.data(), buffer.size(), 0);
                 logger.info() << "SocketUdpConnection received " << size;
@@ -728,6 +728,7 @@ public:
     void close(bool discardAll=false) override {
         if (!open) return;
         open = false;
+        logger.info() << "closing udp connection";
 
         if (state != ConnectionState::CLOSED) {
             shutdown(descriptor, 2);
