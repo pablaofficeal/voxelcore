@@ -25,6 +25,7 @@ for i = 1, 15 do
                 debug.log(string.format("sent packet %s (%s bytes)", k, #payload))
                 coroutine.yield()
             end
+            app.sleep_until(function () return complete end, nil, 5)
             socket:close()
         end, "udp-data-sender")
     end)
