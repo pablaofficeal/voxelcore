@@ -691,15 +691,16 @@ public:
     void connect(ClientDatagramCallback handler) override {
         callback = std::move(handler);
         state = ConnectionState::CONNECTED;
+        logger.info() << "udp connection started " << id;
 
         thread = std::make_unique<std::thread>([this]() {
             util::Buffer<char> buffer(16'384);
             while (true) {
-                logger.info() << "SocketUdpConnection listening";
+                logger.info() << "SocketUdpConnection " << id << " listening";
                 int size = recv(descriptor, buffer.data(), buffer.size(), 0);
-                logger.info() << "SocketUdpConnection received " << size;
+                logger.info() << "SocketUdpConnection "<<id<<" received " << size;
                 if (size <= 0) {
-                    logger.error() << handle_socket_error("SocketUdpConnection::recv").what();
+                    logger.error() <<id <<" -> " << handle_socket_error("SocketUdpConnection::recv").what();
                     if (!open) break;
                     closesocket(descriptor);
                     state = ConnectionState::CLOSED;
@@ -719,7 +720,7 @@ public:
             auto err = handle_socket_error("udp sendto failed");
             closesocket(descriptor);
             state = ConnectionState::CLOSED;
-            logger.error() << "SocketUdpConnection:send: " << err.what();
+            logger.error() << "SocketUdpConnection "<<id<<":send: " << err.what();
         } else totalUpload += len;
 
         return len;
@@ -728,7 +729,7 @@ public:
     void close(bool discardAll=false) override {
         if (!open) return;
         open = false;
-        logger.info() << "closing udp connection";
+        logger.info() << "closing udp connection "<<id;
 
         if (state != ConnectionState::CLOSED) {
             shutdown(descriptor, 2);
