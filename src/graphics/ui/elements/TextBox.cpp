@@ -253,9 +253,10 @@ void TextBox::draw(const DrawContext& pctx, const Assets& assets) {
     float time = gui.getWindow().time();
 
     if (editable && static_cast<int>((time - caretLastMove) * 2) % 2 == 0) {
-        uint line = rawTextCache.getLineByTextIndex(caret);
-        uint lcaret = caret - rawTextCache.getTextLineOffset(line);
+        uint line = label->getLineByTextIndex(caret);
+        uint lcaret = caret - label->getTextLineOffset(line);
         int width = rawTextCache.metrics.calcWidth(input, 0, lcaret);
+
         batch->rect(
             lcoord.x + width,
             lcoord.y + label->getLineYOffset(line),
@@ -272,10 +273,10 @@ void TextBox::draw(const DrawContext& pctx, const Assets& assets) {
 
         batch->setColor(glm::vec4(0.8f, 0.9f, 1.0f, 0.25f));
         int start = rawTextCache.metrics.calcWidth(
-            labelText, selectionStart - label->getTextLineOffset(startLine)
+            labelText, 0, selectionStart - label->getTextLineOffset(startLine)
         );
         int end = rawTextCache.metrics.calcWidth(
-            labelText, selectionEnd - label->getTextLineOffset(endLine)
+            labelText, 0, selectionEnd - label->getTextLineOffset(endLine)
         );
         int lineY = label->getLineYOffset(startLine);
 
@@ -668,7 +669,7 @@ int TextBox::calcIndexAt(int x, int y) const {
     line = std::min(line, label->getLinesNumber() - 1);
     size_t lineLength = getLineLength(line);
     uint offset = 0;
-    while (lcoord.x + rawTextCache.metrics.calcWidth(labelText, offset) < x &&
+    while (lcoord.x + rawTextCache.metrics.calcWidth(labelText, 0, offset) < x &&
            offset < lineLength - 1) {
         offset++;
     }
@@ -1217,8 +1218,8 @@ void TextBox::setCaret(size_t position) {
         scrolled(-glm::ceil(offset / static_cast<double>(scrollStep) + 0.5f));
     }
     int lcaret = caret - rawTextCache.getTextLineOffset(line);
-    int realoffset =
-        rawTextCache.metrics.calcWidth(labelText, 0, lcaret) - static_cast<int>(textOffset) + 2;
+    int realoffset = rawTextCache.metrics.calcWidth(labelText, 0, lcaret) -
+                     static_cast<int>(textOffset) + 2;
 
     if (realoffset - width > 0) {
         setTextOffset(textOffset + realoffset - width);
