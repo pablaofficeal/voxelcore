@@ -1,6 +1,6 @@
 #param vec3 u_ssaoSamples[64]
 #param int u_kernelSize = 16
-#param float u_radius = 0.4
+#param float u_radius = 0.1
 #param float u_bias = 0.006
 
 vec4 effect() {
