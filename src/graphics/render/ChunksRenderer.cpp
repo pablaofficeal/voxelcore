@@ -363,12 +363,11 @@ void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
     struct VisibleChunkTrans {
         glm::ivec2 key;
         const std::shared_ptr<Chunk>* chunkPtr;
-        long long nearestDist2;
     };
     std::vector<VisibleChunkTrans> order;
     order.reserve(indices.size());
 
-    // Build per-chunk nearest distance for translucent entries
+    // Build list of visible translucent chunks in the same order as indices
     for (const auto& index : indices) {
         const auto& chunk = chunks[index.index];
         if (chunk == nullptr || !chunk->flags.lighted) {
@@ -388,18 +387,11 @@ void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
             if (!frustum.isBoxVisible(bounds.min, bounds.max)) continue;
         }
 
-        long long nearest = LLONG_MAX;
-        for (const auto& e : entries) {
-            long long d2 = static_cast<long long>(glm::distance2(e.position, cameraPos));
-            if (d2 < nearest) nearest = d2;
-        }
-        order.push_back(VisibleChunkTrans{glm::ivec2(chunk->x, chunk->z), &chunks[index.index], nearest});
+        order.push_back(VisibleChunkTrans{
+            glm::ivec2(chunk->x, chunk->z),
+            &chunks[index.index]
+        });
     }
-
-    // Sort chunks by nearest translucent distance back-to-front (far to near)
-    std::sort(order.begin(), order.end(), [](const VisibleChunkTrans& a, const VisibleChunkTrans& b) {
-        return a.nearestDist2 > b.nearestDist2;
-    });
 
     // Draw per-chunk sorted mesh (keeps GPU buffers and avoids per-frame repack)
     for (const auto& item : order) {
